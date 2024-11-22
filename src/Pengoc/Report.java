@@ -90,34 +90,19 @@ public class Report {
                     System.out.printf("|%-15s: %-60s|\n", "Balance", customerRs.getString("Cm_Balance"));
                     System.out.printf("|%-15s: %-60s|\n", "Updated Date", customerRs.getString("Cm_Update_Date"));
                     System.out.println("+----------------------------------------------------------------------------------------------------+");
+                    
+                    String tbl_view = "SELECT Transaction_History.Tm_Id, Transaction_History.Tm_Transaction_Date, "
+                            + "Transaction_History.Tm_Status, Transaction_History.Tm_Amount, Transaction_History.Tm_Balance, "
+                            + "Worker_List.w_id, Worker_List.w_fname, Worker_List.w_lname, "
+                            + "(Worker_List.w_fname || ' ' || Worker_List.w_lname) AS WorkerFullName "
+                            + "FROM Transaction_History "
+                            + "INNER JOIN Worker_List ON Transaction_History.w_id = Worker_List.w_id "
+                            + "WHERE Transaction_History.Cms_Id = " + id;
 
-                    String transactionSQL = "SELECT Tm_Transaction_Date, Tm_Status, Tm_Amount FROM Transaction_History WHERE Cms_Id = ?";
-                    PreparedStatement transactionStmt = conf.connectDB().prepareStatement(transactionSQL);
-                    transactionStmt.setInt(1, id);
-                    ResultSet transactionRs = transactionStmt.executeQuery();
-
-                    System.out.printf("|%-25s%-50s%-25s|\n", "", "**Transaction History**", "");
-                    System.out.println("+-------------------------------+-------------------------------+-------------------------------+");
-                    System.out.printf("| %-28s | %-28s | %-28s |\n", "Tm_Transaction_Date", "Tm_Status", "Tm_Amount");
-                    System.out.println("+-------------------------------+-------------------------------+-------------------------------+");
-
-                    boolean hasTransactions = false;
-                    while (transactionRs.next()) {
-                        hasTransactions = true;
-                        System.out.printf("| %-28s | %-28s | %-28s |\n", 
-                            transactionRs.getString("Tm_Transaction_Date"), 
-                            transactionRs.getString("Tm_Status"), 
-                            transactionRs.getString("Tm_Amount"));
-                    }
-
-                    if (!hasTransactions) {
-                        System.out.println("| No transaction history available for this customer.");
-                    }
-
-                    System.out.println("+-------------------------------+-------------------------------+-------------------------------+");
-
-                    transactionRs.close();
-                    transactionStmt.close();
+                    String[] tbl_Headers = {"ID", "Amount", "Status", "Date", "Manage by"};
+                    String[] tbl_Columns = {"Tm_Id", "Tm_Amount", "Tm_Status", "Tm_Transaction_Date", "WorkerFullName"};
+                    conf.viewRecords(tbl_view, tbl_Headers, tbl_Columns);
+                    
                 } else {
                     System.out.println("|\tNo record found for ID: " + id + " |");
                 }

@@ -11,22 +11,23 @@ public class Main {
             System.out.println("+----------------------------------------------------------------------------------------------------+");
             System.out.printf("|%-25s%-50s%-25s|\n", "", "**Bank Management System**", "");
             System.out.printf("|%-5s%-95s|\n", "", "1. Customer Management");
-            System.out.printf("|%-5s%-95s|\n", "", "2. Transaction Management");
-            System.out.printf("|%-5s%-95s|\n", "", "3. Reports");
-            System.out.printf("|%-5s%-95s|\n", "", "4. Exit");
+            System.out.printf("|%-5s%-95s|\n", "", "2. Worker");
+            System.out.printf("|%-5s%-95s|\n", "", "3. Transaction Management");
+            System.out.printf("|%-5s%-95s|\n", "", "4. Reports");
+            System.out.printf("|%-5s%-95s|\n", "", "5. Exit");
             System.out.printf("|%-5sEnter Choice: ", "");
             int choice;
-            while (true) {
-                try {
+            while(true){
+                try{
                     choice = input.nextInt();
-                    if (choice > 0 && choice < 5) {
+                    if(choice>0 && choice<6){
                         break;
-                    } else {
-                        System.out.printf("|%-5sEnter Choice Again: ");
+                    }else{
+                        System.out.printf("|%-5sEnter Choice Again: ","");
                     }
-                } catch (Exception e) {
+                }catch(Exception e){
                     input.next();
-                    System.out.printf("|%-5sEnter Choice Again: ");
+                    System.out.printf("|%-5sEnter Choice Again: ","");
                 }
             }
             switch (choice) {
@@ -35,10 +36,14 @@ public class Main {
                     cm.customer();
                     break;
                 case 2:
+                    Workers w = new Workers();
+                    w.worker();
+                    break;
+                case 3:
                     Transaction_Management tm = new Transaction_Management();
                     tm.t_manage();
                     break;
-                case 3:
+                case 4:
                     Report r = new Report();
                     r.report_type();
                     break;

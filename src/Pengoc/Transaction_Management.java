@@ -9,6 +9,7 @@ public class Transaction_Management {
     Scanner input = new Scanner(System.in);
     config conf = new config();
     Customer_Management cm = new Customer_Management();
+    Workers w = new Workers();
     
     public void t_manage(){
         boolean exit = true;
@@ -96,12 +97,12 @@ public class Transaction_Management {
                 while(true){
                     try{
                         cash = input.nextDouble();
+                        if(cash>cbalance){
+                            System.out.print("|\tEnter Amount to Withdraw Again: ");
+                        }
                         if(cash>=0 && cash<=cbalance){
                             cbalance -= cash;
                             break;
-                        }else{
-                            System.out.printf("|%-25s%-32s%-18.2lf%-25s|\n","","**Warning Your Balance is only: ",cbalance,"");
-                            System.out.print("|\tEnter Amount to Withdraw Again: ");
                         }
                     }catch(Exception e){
                         input.next();
@@ -125,10 +126,28 @@ public class Transaction_Management {
                     }
                 }
             }
-            String SQL = "INSERT INTO Transaction_History (Cms_Id, Tm_Transaction_Date, Tm_Status, Tm_Amount, Tm_Balance) Values (?,?,?,?,?)";
+            w.viewEmployed();
+            System.out.println("+----------------------------------------------------------------------------------------------------+");
+            System.out.printf("|%-25s%-50s%-25s|\n","","**Select Worker That Manage The Transaction**","");
+            System.out.print("|\tEnter ID of Worker: ");
+            int wid;
+            while(true){
+                try{
+                    wid = input.nextInt();
+                    if(doesIDexists2(wid, conf)){
+                        break;
+                    }else{
+                        System.out.print("|\tEnter ID of Worker Again: ");
+                    }
+                }catch(Exception e){
+                    input.next();
+                    System.out.print("|\tEnter ID of Worker Again: ");
+                }
+            }
+            String SQL = "INSERT INTO Transaction_History (Cms_Id, Tm_Transaction_Date, Tm_Status, Tm_Amount, Tm_Balance, w_id) Values (?,?,?,?,?,?)";
             String SQL2 = "UPDATE Customer_Management SET Cm_Balance = ?, Cm_Update_Date = ? Where Cm_Id = ?";
             
-            conf.addRecord(SQL, id, cdate, stat, cash, cbalance);
+            conf.addRecord(SQL, id, cdate, stat, cash, cbalance, wid);
             conf.updateRecord(SQL2, cbalance, cdate, id);
             exit = false;
         }
@@ -145,6 +164,21 @@ public class Transaction_Management {
     //validation tanan ubos
     private boolean doesIDexists(int id, config conf) {
         String query = "SELECT COUNT(*) FROM CM_summary Where Cms_Id = ?";
+        try (Connection conn = conf.connectDB();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println("|\tError checking Report ID: " + e.getMessage());
+        }
+        return false;
+    }
+    private boolean doesIDexists2(int id, config conf) {
+        String query = "SELECT COUNT(*) FROM Worker_List Where w_id = ? And w_status = 'Employed'";
         try (Connection conn = conf.connectDB();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
